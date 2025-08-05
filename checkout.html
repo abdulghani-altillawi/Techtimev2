@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إتمام الطلب - Tech Time</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background:#222831; color:#EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    input, select { background: rgba(255,255,255,0.1); color: white; border-radius: 0.5rem; padding: 0.5rem; width: 100%; }
+    input:focus, select:focus { outline: 2px solid #00ADB5; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<div id="navbar"></div>
+
+<section class="pt-28 px-4 max-w-5xl mx-auto">
+
+  <h1 class="text-3xl font-bold text-center text-[#00ADB5] mb-10">إتمام الطلب</h1>
+
+  <!-- ===== ملخص المنتجات ===== -->
+  <div class="glass p-6 rounded-xl mb-8 overflow-x-auto">
+    <h2 class="text-xl font-bold mb-4 text-[#00ADB5]">ملخص المنتجات</h2>
+    <table class="w-full text-center text-gray-200">
+      <thead>
+        <tr class="border-b border-gray-700">
+          <th class="py-2">الصورة</th>
+          <th class="py-2">المنتج</th>
+          <th class="py-2">الكمية</th>
+          <th class="py-2">السعر</th>
+        </tr>
+      </thead>
+      <tbody id="cartSummary"></tbody>
+    </table>
+    <p id="cartEmpty" class="text-center text-gray-400 mt-4 hidden">السلة فارغة</p>
+  </div>
+
+  <!-- ===== بيانات العميل ===== -->
+  <div class="glass p-6 rounded-xl mb-8">
+    <h2 class="text-xl font-bold mb-4 text-[#00ADB5]">بياناتك</h2>
+    <div class="grid md:grid-cols-2 gap-4">
+      <input type="text" id="name" placeholder="الاسم الكامل" required>
+      <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+      <input type="tel" id="phone" placeholder="رقم الهاتف" required>
+      <input type="text" id="address" placeholder="العنوان" required>
+    </div>
+  </div>
+
+  <!-- ===== طريقة الدفع ===== -->
+  <div class="glass p-6 rounded-xl mb-8">
+    <h2 class="text-xl font-bold mb-4 text-[#00ADB5]">طريقة الدفع</h2>
+    <select id="paymentMethod" required>
+      <option value="كاش عند الاستلام">كاش عند الاستلام</option>
+      <option value="بطاقة">بطاقة</option>
+    </select>
+  </div>
+
+  <!-- ===== كود الخصم ===== -->
+  <div class="glass p-6 rounded-xl mb-8">
+    <h2 class="text-xl font-bold mb-4 text-[#00ADB5]">كود الخصم</h2>
+    <div class="flex gap-4">
+      <input type="text" id="discountCode" placeholder="أدخل كود الخصم">
+      <button id="applyDiscount" class="bg-[#00ADB5] hover:bg-[#393E46] text-white px-4 py-2 rounded-lg">تطبيق</button>
+    </div>
+    <p id="discountMessage" class="mt-2 text-sm text-green-400 hidden">تم تطبيق الخصم!</p>
+  </div>
+
+  <!-- ===== الإجمالي ===== -->
+  <div class="glass p-6 rounded-xl mb-8 text-center">
+    <p class="text-xl mb-2">الإجمالي:</p>
+    <p id="totalPrice" class="text-2xl font-bold mb-2 text-[#00ADB5]">0 ل.س</p>
+    <p class="text-lg mb-4 text-red-400 hidden" id="discountAmount"></p>
+    <button id="confirmOrder" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold w-full transition">
+      تأكيد الطلب
+    </button>
+  </div>
+
+</section>
+
+<!-- Toast Notifications -->
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, where, limit, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+    authDomain: "techtimev3.firebaseapp.com",
+    projectId: "techtimev3",
+    storageBucket: "techtimev3.appspot.com",
+    messagingSenderId: "435597436729",
+    appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+    measurementId: "G-3984PMGWGH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  let cartItems = [];
+  let discountValue = 0;
+  let discountType = null;
+  let discountAmount = 0;
+  let appliedDiscountDocId = null;
+  let appliedDiscountUsedBy = [];
+
+  const cartSummary = document.getElementById("cartSummary");
+  const cartEmpty = document.getElementById("cartEmpty");
+  const totalPriceEl = document.getElementById("totalPrice");
+  const discountAmountEl = document.getElementById("discountAmount");
+  const discountMessage = document.getElementById("discountMessage");
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `glass px-4 py-3 rounded-lg shadow-md cursor-pointer transition transform hover:scale-105 ${
+      type === 'success' ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400'
+    }`;
+    toast.textContent = message;
+    toast.addEventListener('click', () => toast.remove());
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function calcTotal(){
+    let total = cartItems.reduce((sum,item)=> sum + (parseFloat(item.price||0)*(item.quantity||1)),0);
+    discountAmount = 0;
+
+    if(discountType === 'percent'){
+      discountAmount = Math.round(total * discountValue / 100);
+    } else if(discountType === 'fixed'){
+      discountAmount = discountValue;
+    }
+
+    if(discountAmount > total) discountAmount = total;
+    let finalTotal = total - discountAmount;
+
+    discountAmountEl.textContent = `مبلغ الخصم: ${discountAmount} ل.س`;
+    discountAmountEl.classList.toggle('hidden', discountAmount <= 0);
+
+    totalPriceEl.textContent = Math.round(finalTotal) + " ل.س";
+  }
+
+  function renderCart(){
+    cartSummary.innerHTML = '';
+    if(cartItems.length === 0){
+      cartEmpty.classList.remove("hidden");
+      totalPriceEl.textContent = "0 ل.س";
+      return;
+    }
+    cartEmpty.classList.add("hidden");
+    cartItems.forEach(item => {
+      const price = parseFloat(item.price || 0) * (item.quantity || 1);
+      cartSummary.innerHTML += `
+        <tr class="border-b border-gray-700">
+          <td class="py-2"><img src="${item.image}" class="w-16 h-16 object-cover rounded"/></td>
+          <td class="py-2">${item.name}</td>
+          <td class="py-2">${item.quantity || 1}</td>
+          <td class="py-2">${price} ل.س</td>
+        </tr>
+      `;
+    });
+    calcTotal();
+  }
+
+  async function loadCart(){
+    cartItems = [];
+    if(currentUser){
+      const q = query(collection(db,"carts"), where("userId","==",currentUser.uid));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        data.id = docSnap.id;
+        cartItems.push(data);
+      });
+    } else {
+      cartItems = JSON.parse(localStorage.getItem("localCart")||"[]");
+    }
+    renderCart();
+  }
+
+  document.getElementById("applyDiscount").addEventListener("click", async ()=>{
+    const codeInput = document.getElementById("discountCode").value.trim();
+    const emailInput = document.getElementById("email").value.trim();
+    if(!codeInput){ showToast("❌ أدخل كود الخصم", "error"); return; }
+    if(!emailInput){ showToast("❌ أدخل بريدك الإلكتروني أولاً", "error"); return; }
+
+    const q = query(collection(db,"discounts"), where("code","==",codeInput), limit(1));
+    const snapshot = await getDocs(q);
+
+    if(snapshot.empty){
+      showToast("❌ كود الخصم غير صالح", "error");
+      return;
+    }
+
+    const discountDoc = snapshot.docs[0];
+    const discountData = discountDoc.data();
+    appliedDiscountDocId = discountDoc.id;
+    appliedDiscountUsedBy = discountData.usedBy || [];
+
+    const now = new Date();
+    const expiry = new Date(discountData.expiry);
+
+    if(now > expiry){
+      showToast("❌ انتهت صلاحية كود الخصم", "error");
+      return;
+    }
+
+    if(discountData.uses <= 0){
+      showToast("❌ تم استهلاك كود الخصم بالكامل", "error");
+      return;
+    }
+
+    if(appliedDiscountUsedBy.includes(emailInput)){
+      showToast("❌ لقد استخدمت هذا الكود مسبقًا", "error");
+      return;
+    }
+
+    if(discountData.value <= 100){
+      discountType = 'percent';
+      discountValue = discountData.value;
+    } else {
+      discountType = 'fixed';
+      discountValue = discountData.value;
+    }
+
+    discountMessage.classList.remove("hidden");
+    showToast("✅ تم تطبيق الخصم!");
+    calcTotal();
+  });
+
+  document.getElementById("confirmOrder").addEventListener("click", async ()=>{
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+    const paymentMethod = document.getElementById("paymentMethod").value;
+
+    if(!name || !email || !phone || !address){
+      showToast("❌ يرجى ملء كل البيانات", "error");
+      return;
+    }
+
+    const orderData = {
+      userId: currentUser ? currentUser.uid : null, // ✅ هنا تم الحفظ على مستوى الطلب
+      name,email,phone,address,paymentMethod,
+      products: cartItems,
+      discount: discountAmount,
+      total: totalPriceEl.textContent,
+      createdAt: new Date(),
+      status: "قيد المراجعة"
+    };
+
+    await addDoc(collection(db,"completeorders"), orderData);
+
+    if(appliedDiscountDocId){
+      const discountRef = doc(db,"discounts",appliedDiscountDocId);
+      await updateDoc(discountRef,{
+        uses: (cartItems.length>0)?(cartItems.length-1):0,
+        usedBy: arrayUnion(email)
+      });
+    }
+
+    if(currentUser){
+      for(const item of cartItems){
+        await deleteDoc(doc(db,"carts",item.id));
+      }
+    } else {
+      localStorage.removeItem("localCart");
+    }
+
+    showToast("✅ تم إرسال طلبك بنجاح!");
+    setTimeout(()=>window.location.href="index.html",2000);
+  });
+
+  onAuthStateChanged(auth, user=>{
+    currentUser = user || null;
+    loadCart();
+  });
+
+</script>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    if (sidebar) {
+      sidebar.classList.toggle('translate-x-full');
+    }
+    if (overlay) {
+      overlay.classList.toggle('invisible');
+      overlay.classList.toggle('opacity-0');
+    }
+  }
+</script>
+</body>
+</html>

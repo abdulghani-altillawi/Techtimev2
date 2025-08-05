@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Time - الصفحة الرئيسية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background: #222831; color: #EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .card img { height: 140px; object-fit: contain; border-radius: 0.75rem; background-color: transparent; padding: 5px; }
+    .carousel { display: flex; gap: 1rem; overflow-x: auto; scroll-behavior: smooth; padding-bottom: 0.5rem; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .carousel-container { position: relative; }
+    .carousel-btn {
+      position: absolute; top: 40%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.4); color: #EEEEEE; border-radius: 50%;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.3s;
+    }
+    .carousel-btn:hover { background: rgba(0,0,0,0.6); }
+    .carousel-prev { left: 0.5rem; }
+    .carousel-next { right: 0.5rem; }
+    @media(max-width:768px){ .carousel-btn{ display:none; } }
+
+    /* ستايل الناف */
+    #sidebar {
+      box-shadow: -4px 0 15px rgba(0,0,0,0.4);
+      transition: transform 0.35s ease-in-out, opacity 0.35s ease-in-out;
+      opacity: 0;
+    }
+    #sidebar:not(.translate-x-full) { opacity: 1; }
+    #overlay { transition: opacity 0.3s ease; }
+    nav .nav-link { position: relative; padding-bottom: 2px; }
+    nav .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0%; height: 2px; background: #00ADB5;
+      transition: width 0.3s ease-in-out;
+    }
+    nav .nav-link:hover::after { width: 100%; }
+    #userMenuBtn { transition: transform 0.2s ease, background 0.2s ease; }
+    #userMenuBtn:hover { transform: scale(1.05); background: #00939a; }
+    #userDropdown {
+      transform-origin: top right;
+      transform: scaleY(0);
+      opacity: 0;
+      transition: all 0.25s ease-in-out;
+    }
+    .group:hover #userDropdown { transform: scaleY(1); opacity: 1; }
+    #userPhoto { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+<!-- ======= Navbar مدمج ======= -->
+<nav class="flex justify-between items-center px-6 py-4 bg-[#222831] text-white fixed w-full top-0 z-50">
+  <button class="lg:hidden text-2xl" onclick="toggleSidebar()">☰</button>
+  <div class="hidden lg:flex items-center gap-6">
+    <a href="index.html" class="nav-link hover:text-[#00ADB5] transition">الرئيسية</a>
+    <a href="products.html" class="nav-link hover:text-[#00ADB5] transition">المنتجات</a>
+    <a href="categories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات</a>
+    <a href="subcategories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات الفرعية</a>
+    <a href="brands.html" class="nav-link hover:text-[#00ADB5] transition">الماركات</a>
+    <a href="about.html" class="nav-link hover:text-[#00ADB5] transition">من نحن</a>
+    <a href="contact.html" class="nav-link hover:text-[#00ADB5] transition">تواصل معنا</a>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="cart.html" class="relative text-2xl hover:text-[#00ADB5] transition">
+      🛒
+      <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 hidden">0</span>
+    </a>
+    <div class="relative group">
+      <button id="userMenuBtn" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00ADB5] text-white font-bold">
+        <img id="userPhoto" class="hidden" alt="User"/>
+        <span id="userName">حسابي</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div id="userDropdown" class="absolute right-0 mt-2 w-44 bg-[#393E46] text-white rounded-lg shadow-lg">
+        <a href="login.html" id="loginOption" class="block px-4 py-2 hover:bg-[#00ADB5] rounded-t-lg">تسجيل الدخول</a>
+        <a href="register.html" id="registerOption" class="block px-4 py-2 hover:bg-[#00ADB5]">إنشاء حساب</a>
+        <a href="my-orders.html" id="ordersOption" class="block px-4 py-2 hover:bg-[#00ADB5] hidden">طلباتي</a>
+        <button id="logoutBtn" class="block w-full text-right px-4 py-2 hover:bg-red-500 rounded-b-lg hidden">تسجيل الخروج</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<div id="overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible z-40 lg:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar" class="fixed top-0 right-0 w-64 h-full bg-[#222831] text-white transform translate-x-full transition-transform z-50 lg:hidden">
+  <button class="text-2xl p-4" onclick="toggleSidebar()">✖</button>
+  <div class="flex flex-col gap-4 px-6 mt-6">
+    <a href="index.html" class="hover:text-[#00ADB5]">الرئيسية</a>
+    <a href="products.html" class="hover:text-[#00ADB5]">المنتجات</a>
+    <a href="categories.html" class="hover:text-[#00ADB5]">الفئات</a>
+    <a href="subcategories.html" class="hover:text-[#00ADB5]">الفئات الفرعية</a>
+    <a href="brands.html" class="hover:text-[#00ADB5]">الماركات</a>
+    <a href="about.html" class="hover:text-[#00ADB5]">من نحن</a>
+    <a href="contact.html" class="hover:text-[#00ADB5]">تواصل معنا</a>
+  </div>
+</div>
+
+<script>
+function toggleSidebar(){
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  sidebar.classList.toggle('translate-x-full');
+  overlay.classList.toggle('invisible');
+  overlay.classList.toggle('opacity-0');
+}
+</script>
+
+<!-- ===== Hero Banner ===== -->
+<section class="relative h-[65vh] flex flex-col justify-center items-center text-center overflow-hidden mt-16"
+         style="background: url('https://i.im.ge/2025/08/03/JymlnW.1000084062.jpeg') center/cover no-repeat;">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative z-10 max-w-3xl px-6" data-aos="zoom-in">
+    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+      أكسسوارات <span class="text-[#00ADB5]">فاخرة</span> لموبايلك
+    </h1>
+    <p class="text-lg md:text-xl text-gray-200 mb-8">
+      جودة عالية - تصميم عصري - تجربة تسوق فريدة
+    </p>
+    <a href="#products" class="bg-[#00ADB5] hover:bg-[#393E46] text-white px-8 py-3 rounded-full text-lg font-bold transition">
+       تصفح المنتجات
+    </a>
+  </div>
+</section>
+
+<!-- ===== الفئات ===== -->
+<section id="categories" class="max-w-7xl mx-auto px-6 py-12">
+  <h3 class="text-3xl font-bold mb-6 text-center text-[#00ADB5]" data-aos="fade-down">الفئات</h3>
+  <div class="carousel-container">
+    <div class="carousel" id="categoriesCarousel"></div>
+    <div class="carousel-btn carousel-prev" onclick="scrollCarousel('categoriesCarousel',-1)">‹</div>
+    <div class="carousel-btn carousel-next" onclick="scrollCarousel('categoriesCarousel',1)">›</div>
+  </div>
+</section>
+
+<!-- ===== الفئات الفرعية ===== -->
+<section id="subcategories" class="max-w-7xl mx-auto px-6 py-12">
+  <h3 class="text-3xl font-bold mb-6 text-center text-[#00ADB5]" data-aos="fade-down">الفئات الفرعية</h3>
+  <div class="carousel-container">
+    <div class="carousel" id="subCategoriesCarousel"></div>
+    <div class="carousel-btn carousel-prev" onclick="scrollCarousel('subCategoriesCarousel',-1)">‹</div>
+    <div class="carousel-btn carousel-next" onclick="scrollCarousel('subCategoriesCarousel',1)">›</div>
+  </div>
+</section>
+
+<!-- ===== المنتجات ===== -->
+<section id="products" class="max-w-7xl mx-auto px-6 py-12">
+  <h3 class="text-3xl font-bold mb-6 text-center text-[#00ADB5]" data-aos="fade-down">منتجاتنا</h3>
+  <div class="carousel-container">
+    <div class="carousel" id="productsCarousel"></div>
+    <div class="carousel-btn carousel-prev" onclick="scrollCarousel('productsCarousel',-1)">‹</div>
+    <div class="carousel-btn carousel-next" onclick="scrollCarousel('productsCarousel',1)">›</div>
+  </div>
+</section>
+
+<!-- ===== Toast Notifications ===== -->
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, query, where, getDocs as getAllDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+    authDomain: "techtimev3.firebaseapp.com",
+    projectId: "techtimev3",
+    storageBucket: "techtimev3.appspot.com",
+    messagingSenderId: "435597436729",
+    appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+    measurementId: "G-3984PMGWGH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // ==========================
+  // 🔹 متغيرات عامة
+  // ==========================
+  let currentUser = null;
+
+  // 🔹 دوال المساعدة للـ LocalStorage
+  function loadLocalCart() {
+    return JSON.parse(localStorage.getItem("localCart") || "[]");
+  }
+  function saveLocalCart(cart) {
+    localStorage.setItem("localCart", JSON.stringify(cart));
+  }
+
+  // ==========================
+  // 🔹 حالة تسجيل الدخول
+  // ==========================
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user || null;
+    const userName = document.getElementById("userName");
+    const userPhoto = document.getElementById("userPhoto");
+    const loginOption = document.getElementById("loginOption");
+    const registerOption = document.getElementById("registerOption");
+    const ordersOption = document.getElementById("ordersOption");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const cartCount = document.getElementById("cartCount");
+
+    if(user){
+      userName.textContent = user.displayName || "حسابي";
+      if(user.photoURL){
+        userPhoto.src = user.photoURL;
+        userPhoto.classList.remove("hidden");
+      }
+      loginOption.classList.add("hidden");
+      registerOption.classList.add("hidden");
+      ordersOption.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
+
+      // ✅ عند تسجيل الدخول، نسحب سلة الزائر ونرفعها للحساب
+      let localCart = loadLocalCart();
+      if(localCart.length>0){
+        for(let item of localCart){
+          const q = query(collection(db,"carts"), where("userId","==",user.uid), where("name","==",item.name));
+          const snap = await getAllDocs(q);
+          if(!snap.empty){
+            const docRef = snap.docs[0].ref;
+            const data = snap.docs[0].data();
+            const newQty = (data.quantity||1)+(item.quantity||1);
+            await updateDoc(docRef,{quantity:newQty});
+          } else {
+            await addDoc(collection(db,"carts"),{
+              userId:user.uid,...item,addedAt:new Date()
+            });
+          }
+        }
+        localStorage.removeItem("localCart");
+      }
+
+      // ✅ تحديث عداد السلة من Firestore
+      const q = query(collection(db,"carts"), where("userId","==",user.uid));
+      const snap = await getAllDocs(q);
+      cartCount.textContent = snap.size;
+      cartCount.classList.toggle("hidden", snap.size===0);
+
+    }else{
+      userName.textContent = "حسابي";
+      userPhoto.classList.add("hidden");
+      loginOption.classList.remove("hidden");
+      registerOption.classList.remove("hidden");
+      ordersOption.classList.add("hidden");
+      logoutBtn.classList.add("hidden");
+
+      // ✅ تحديث عداد السلة من التخزين المحلي
+      let localCart = loadLocalCart();
+      cartCount.textContent = localCart.length;
+      cartCount.classList.toggle("hidden", localCart.length===0);
+    }
+
+    logoutBtn.addEventListener("click", () => signOut(auth).then(() => window.location.href = "index.html"));
+  });
+
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `glass px-4 py-3 rounded-lg shadow-md cursor-pointer transition transform hover:scale-105 ${
+      type === 'success' ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400'
+    }`;
+    toast.textContent = message;
+    toast.addEventListener('click', () => toast.remove());
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  const carousels = {
+    categories: document.getElementById("categoriesCarousel"),
+    subcategories: document.getElementById("subCategoriesCarousel"),
+    products: document.getElementById("productsCarousel"),
+  };
+
+  window.scrollCarousel = (id, dir)=>{
+    document.getElementById(id).scrollBy({left: dir*300, behavior:"smooth"});
+  };
+
+  function enableAutoScroll(el, speed=1){
+    let interval;
+    function start(){ interval = setInterval(()=>{ el.scrollBy({left:-speed, behavior:"smooth"}); },30); }
+    function stop(){ clearInterval(interval); }
+    start();
+    el.addEventListener('mouseenter', stop);
+    el.addEventListener('mouseleave', start);
+    el.addEventListener('touchstart', stop);
+    el.addEventListener('touchend', start);
+  }
+
+  async function loadCollection(coll, container, templateFn){
+    const snapshot = await getDocs(collection(db,coll));
+    let delay = 0;
+    snapshot.forEach(d => {
+      const data = d.data();
+      container.innerHTML += templateFn(data, delay);
+      delay += 100;
+    });
+    enableAutoScroll(container, 1);
+  }
+
+  loadCollection("categories", carousels.categories, (c,delay)=>`
+    <a href="category.html?name=${encodeURIComponent(c.name || '')}" 
+       class="glass card p-4 min-w-[200px] rounded-xl text-center hover:scale-105 transition"
+       data-aos="fade-up" data-aos-delay="${delay}">
+      <img src="${c.image || ''}" class="w-full mb-2">
+      <h4 class="font-bold">${c.name}</h4>
+    </a>`);
+
+  loadCollection("subcategories", carousels.subcategories, (s,delay)=>`
+    <a href="subcategory.html?name=${encodeURIComponent(s.name || '')}"
+       class="glass card p-4 min-w-[200px] rounded-xl text-center hover:scale-105 transition"
+       data-aos="fade-up" data-aos-delay="${delay}">
+      <img src="${s.image || ''}" class="w-full mb-2">
+      <h4 class="font-bold">${s.name}</h4>
+    </a>`);
+
+  loadCollection("products", carousels.products, (p,delay)=>`
+    <div class="glass card p-4 min-w-[220px] rounded-xl text-center hover:scale-105 transition"
+         data-aos="zoom-in" data-aos-delay="${delay}">
+      <a href="product.html?name=${encodeURIComponent(p.name || '')}">
+        <img src="${p.mainImage || p.image || ''}" class="w-full mb-3">
+        <h4 class="font-bold mb-1">${p.name || ''}</h4>
+        <p class="text-gray-300 text-sm mb-1">${p.brand || ''}</p>
+        <p class="text-[#00ADB5] font-bold text-sm mb-2">${p.price || 0} ل.س</p>
+      </a>
+      <button class="add-to-cart bg-[#00ADB5] hover:bg-[#393E46] text-white py-2 rounded w-full text-sm font-bold mt-2"
+              data-name="${p.name || ''}"
+              data-image="${p.mainImage || p.image || ''}"
+              data-brand="${p.brand || ''}"
+              data-price="${p.price || 0}">
+        أضف إلى السلة
+      </button>
+    </div>`);
+
+  // ===============================
+  // زر إضافة للسلة - يدعم الضيف والمستخدم
+  // ===============================
+  async function activateCartButtons(){
+    document.querySelectorAll(".add-to-cart").forEach((btn)=>{
+      btn.addEventListener("click", async ()=>{
+        const name = btn.dataset.name;
+        const image = btn.dataset.image;
+        const brand = btn.dataset.brand;
+        const price = parseFloat(btn.dataset.price)||0;
+        const cartCount = document.getElementById("cartCount");
+
+        if(currentUser){
+          // 🔹 مستخدم مسجل دخول
+          const q = query(collection(db,"carts"), where("userId","==",currentUser.uid), where("name","==",name));
+          const snap = await getAllDocs(q);
+          if(!snap.empty){
+            // موجود -> زود الكمية
+            const docRef = snap.docs[0].ref;
+            const data = snap.docs[0].data();
+            const newQty = (data.quantity||1)+1;
+            await updateDoc(docRef,{quantity:newQty});
+          }else{
+            // جديد -> أضفه
+            await addDoc(collection(db,"carts"),{
+              userId: currentUser.uid,
+              name, image, brand, price, quantity: 1, addedAt: new Date()
+            });
+          }
+          showToast("✅ تمت إضافة المنتج إلى السلة!");
+          
+          // تحديث العداد من Firestore
+          const q2 = query(collection(db,"carts"), where("userId","==",currentUser.uid));
+          const snap2 = await getAllDocs(q2);
+          cartCount.textContent = snap2.size;
+          cartCount.classList.remove("hidden");
+
+        }else{
+          // 🔹 ضيف -> localStorage
+          let localCart = loadLocalCart();
+          const existing = localCart.find(item=>item.name===name);
+          if(existing){
+            existing.quantity += 1;
+          }else{
+            localCart.push({name,image,brand,price,quantity:1});
+          }
+          saveLocalCart(localCart);
+
+          // تحديث العداد
+          cartCount.textContent = localCart.length;
+          cartCount.classList.remove("hidden");
+
+          showToast("✅ تمت إضافة المنتج إلى السلة كزائر!");
+        }
+      });
+    });
+  }
+
+  // تفعيل الأزرار بعد تحميل المنتجات
+  setTimeout(activateCartButtons, 1500);
+
+  AOS.init({ duration: 700, once: true });
+</script>
+
+</body>
+</html>

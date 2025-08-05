@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الماركات - Tech Time</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background:#222831; color:#EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .brand-card img { 
+      width: 100%; 
+      height: auto; 
+      object-fit: contain; 
+      border-radius: 0.5rem;
+      background-color: transparent; 
+      padding: 5px;
+    }
+
+    /* ===== nav styles ===== */
+    #sidebar {box-shadow: -4px 0 15px rgba(0,0,0,0.4);transition: transform 0.35s, opacity 0.35s;opacity: 0;}
+    #sidebar:not(.translate-x-full){opacity: 1;}
+    #overlay {transition: opacity 0.3s;}
+    #sidebar a:hover { color: #00ADB5; }
+    nav .nav-link{position:relative;padding-bottom:2px;}
+    nav .nav-link::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:#00ADB5;transition:width 0.3s;}
+    nav .nav-link:hover::after{width:100%;}
+    #userMenuBtn {transition: transform 0.2s, background 0.2s;}
+    #userMenuBtn:hover { transform: scale(1.05); background: #00939a; }
+    #userDropdown {transform-origin: top right;transform: scaleY(0);opacity: 0;transition: all 0.25s;}
+    .group:hover #userDropdown {transform: scaleY(1);opacity: 1;}
+    #userPhoto {width: 28px; height: 28px; border-radius: 50%; object-fit: cover;}
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ===== الناف بار كامل ===== -->
+<nav class="flex justify-between items-center px-6 py-4 bg-[#222831] text-white fixed w-full top-0 z-50">
+  <button class="lg:hidden text-2xl" onclick="toggleSidebar()">☰</button>
+  <div class="hidden lg:flex items-center gap-6">
+    <a href="index.html" class="nav-link hover:text-[#00ADB5] transition">الرئيسية</a>
+    <a href="products.html" class="nav-link hover:text-[#00ADB5] transition">المنتجات</a>
+    <a href="categories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات</a>
+    <a href="subcategories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات الفرعية</a>
+    <a href="brands.html" class="nav-link hover:text-[#00ADB5] transition">الماركات</a>
+    <a href="about.html" class="nav-link hover:text-[#00ADB5] transition">من نحن</a>
+    <a href="contact.html" class="nav-link hover:text-[#00ADB5] transition">تواصل معنا</a>
+  </div>
+  <div class="flex items-center gap-4">
+    <a href="cart.html" class="relative text-2xl hover:text-[#00ADB5] transition">
+      🛒
+      <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 hidden">0</span>
+    </a>
+    <div class="relative group">
+      <button id="userMenuBtn" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00ADB5] text-white font-bold">
+        <img id="userPhoto" class="hidden" alt="User"/>
+        <span id="userName">حسابي</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+      </button>
+      <div id="userDropdown" class="absolute right-0 mt-2 w-44 bg-[#393E46] text-white rounded-lg shadow-lg">
+        <a href="login.html" id="loginOption" class="block px-4 py-2 hover:bg-[#00ADB5] rounded-t-lg">تسجيل الدخول</a>
+        <a href="register.html" id="registerOption" class="block px-4 py-2 hover:bg-[#00ADB5]">إنشاء حساب</a>
+        <a href="my-orders.html" id="ordersOption" class="block px-4 py-2 hover:bg-[#00ADB5] hidden">طلباتي</a>
+        <button id="logoutBtn" class="block w-full text-right px-4 py-2 hover:bg-red-500 rounded-b-lg hidden">تسجيل الخروج</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible z-40 lg:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar" class="fixed top-0 right-0 w-64 h-full bg-[#222831] text-white transform translate-x-full transition-transform z-50 lg:hidden">
+  <button class="text-2xl p-4" onclick="toggleSidebar()">✖</button>
+  <div class="flex flex-col gap-4 px-6 mt-6">
+    <a href="index.html" class="hover:text-[#00ADB5]">الرئيسية</a>
+    <a href="products.html" class="hover:text-[#00ADB5]">المنتجات</a>
+    <a href="categories.html" class="hover:text-[#00ADB5]">الفئات</a>
+    <a href="subcategories.html" class="hover:text-[#00ADB5]">الفئات الفرعية</a>
+    <a href="brands.html" class="hover:text-[#00ADB5]">الماركات</a>
+    <a href="about.html" class="hover:text-[#00ADB5]">من نحن</a>
+    <a href="contact.html" class="hover:text-[#00ADB5]">تواصل معنا</a>
+  </div>
+</div>
+
+<!-- ===== عنوان الصفحة ===== -->
+<section class="pt-28 px-4 max-w-7xl mx-auto">
+
+  <h1 class="text-3xl font-bold text-center text-[#00ADB5] mb-10" data-aos="fade-down">
+    جميع الماركات
+  </h1>
+
+  <!-- ===== مؤشر التحميل ===== -->
+  <div id="loading" class="text-center py-16">
+    <svg class="animate-spin h-8 w-8 text-[#00ADB5] mx-auto mb-2" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v8H4z"></path>
+    </svg>
+    <p>جاري تحميل الماركات...</p>
+  </div>
+
+  <!-- ===== شبكة الماركات ===== -->
+  <div id="brandsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+</section>
+
+<!-- ===== الفوتر ===== -->
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+
+<!-- ===== Firebase + AOS ===== -->
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+    authDomain: "techtimev3.firebaseapp.com",
+    projectId: "techtimev3",
+    storageBucket: "techtimev3.appspot.com",
+    messagingSenderId: "435597436729",
+    appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+    measurementId: "G-3984PMGWGH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const brandsGrid = document.getElementById("brandsGrid");
+  const loading = document.getElementById("loading");
+  const cartCount = document.getElementById("cartCount");
+
+  let currentUser = null;
+
+  function updateCartCount(){
+    if(currentUser){
+      // مستخدم مسجل
+      import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js").then(({collection,query,where,getDocs})=>{
+        const q = query(collection(db,"carts"), where("userId","==",currentUser.uid));
+        getDocs(q).then(snap=>{
+          cartCount.textContent = snap.size;
+          cartCount.classList.toggle("hidden", snap.size===0);
+        });
+      });
+    } else {
+      // زائر
+      const localCart = JSON.parse(localStorage.getItem("localCart")||"[]");
+      cartCount.textContent = localCart.length;
+      cartCount.classList.toggle("hidden", localCart.length===0);
+    }
+  }
+
+  async function loadBrands(){
+    const snapshot = await getDocs(collection(db,"brands"));
+    let delay = 0;
+    snapshot.forEach(doc => {
+      const b = doc.data();
+      const card = document.createElement("a");
+      card.href = `brand.html?name=${encodeURIComponent(b.name || '')}`;
+      card.className = "glass brand-card p-4 rounded-xl hover:scale-105 transition block text-center";
+      card.setAttribute("data-aos","fade-up");
+      card.setAttribute("data-aos-delay", delay.toString());
+
+      card.innerHTML = `
+        <img src="${b.image || ''}" class="mb-3">
+        <h3 class="font-bold mb-1">${b.name || ''}</h3>
+      `;
+
+      brandsGrid.appendChild(card);
+      delay += 100;
+    });
+    loading.classList.add("hidden");
+  }
+
+  // 🔹 حالة تسجيل الدخول + مزامنة السلة
+  onAuthStateChanged(auth, user=>{
+    currentUser = user || null;
+    const userName = document.getElementById("userName");
+    const userPhoto = document.getElementById("userPhoto");
+    const loginOption = document.getElementById("loginOption");
+    const registerOption = document.getElementById("registerOption");
+    const ordersOption = document.getElementById("ordersOption");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if(user){
+      userName.textContent = user.displayName || "حسابي";
+      if(user.photoURL){userPhoto.src=user.photoURL;userPhoto.classList.remove("hidden");}
+      loginOption.classList.add("hidden");
+      registerOption.classList.add("hidden");
+      ordersOption.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
+
+      // مزامنة السلة للزائر عند تسجيل الدخول
+      let localCart = JSON.parse(localStorage.getItem("localCart")||"[]");
+      if(localCart.length>0){
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js").then(({addDoc,collection})=>{
+          localCart.forEach(item=>{
+            addDoc(collection(db,"carts"),{...item,userId:user.uid,addedAt:new Date()});
+          });
+          localStorage.removeItem("localCart");
+          updateCartCount();
+        });
+      }
+    }else{
+      userName.textContent = "حسابي";
+      userPhoto.classList.add("hidden");
+      loginOption.classList.remove("hidden");
+      registerOption.classList.remove("hidden");
+      ordersOption.classList.add("hidden");
+      logoutBtn.classList.add("hidden");
+    }
+
+    logoutBtn.addEventListener("click", () => signOut(auth).then(()=>window.location.href="index.html"));
+    updateCartCount();
+  });
+
+  loadBrands();
+  AOS.init({ duration: 700, once: true });
+</script>
+
+<script>
+  function toggleSidebar(){
+    const sidebar=document.getElementById('sidebar');
+    const overlay=document.getElementById('overlay');
+    sidebar.classList.toggle('translate-x-full');
+    overlay.classList.toggle('invisible');
+    overlay.classList.toggle('opacity-0');
+  }
+</script>
+</body>
+</html>

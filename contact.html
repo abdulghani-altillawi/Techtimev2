@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تواصل معنا - Tech Time</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background:#222831; color:#EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    input, textarea { background: rgba(255,255,255,0.1); color: white; border-radius: 0.5rem; padding: 0.5rem; width: 100%; }
+    input:focus, textarea:focus { outline: 2px solid #00ADB5; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<div id="navbar"></div>
+
+
+<!-- ===== بانر الصفحة ===== -->
+<section class="relative h-[40vh] flex flex-col justify-center items-center text-center overflow-hidden"
+         style="background: url('https://i.im.ge/2025/08/03/JymlnW.1000084062.jpeg') center/cover no-repeat;">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative z-10 px-6">
+    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4">تواصل معنا</h1>
+    <p class="text-gray-200 text-lg">نحن هنا للإجابة على أسئلتك</p>
+  </div>
+</section>
+
+<section class="max-w-5xl mx-auto px-6 py-16">
+  <div class="grid md:grid-cols-2 gap-12">
+
+    <!-- ===== معلومات التواصل ===== -->
+    <div class="space-y-6" data-aos="fade-left">
+      <div class="glass p-6 rounded-xl">
+        <h3 class="text-xl font-bold mb-3 text-[#00ADB5]">معلومات التواصل</h3>
+        <p class="mb-2">📍 حمص - سوريا</p>
+        <p class="mb-2">📞 +963 969 237 946</p>
+        <p class="mb-2">✉️ techtime@example.com</p>
+        <a href="https://wa.me/963969237946" target="_blank" class="block mt-4 bg-[#00ADB5] text-center py-2 rounded-lg hover:bg-[#393E46] transition">
+          تواصل عبر واتساب
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== نموذج التواصل ===== -->
+    <div class="glass p-6 rounded-xl" data-aos="fade-right">
+      <h3 class="text-xl font-bold mb-6 text-[#00ADB5]">أرسل رسالة</h3>
+      <form id="contactForm" class="space-y-4">
+        <input type="text" id="name" placeholder="الاسم الكامل" required>
+        <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+        <textarea id="message" rows="5" placeholder="اكتب رسالتك..." required></textarea>
+        <button type="submit" class="bg-[#00ADB5] hover:bg-[#393E46] w-full py-2 rounded-lg font-bold text-white">
+          إرسال الرسالة
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== Toast Notifications ===== -->
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+    authDomain: "techtimev3.firebaseapp.com",
+    projectId: "techtimev3",
+    storageBucket: "techtimev3.appspot.com",
+    messagingSenderId: "435597436729",
+    appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+    measurementId: "G-3984PMGWGH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("contactForm");
+  const toastContainer = document.getElementById("toastContainer");
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `glass px-4 py-3 rounded-lg shadow-md cursor-pointer transition transform hover:scale-105 ${
+      type === 'success' ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400'
+    }`;
+    toast.textContent = message;
+    toast.addEventListener('click', () => toast.remove());
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const message = document.getElementById("message").value;
+
+    await addDoc(collection(db,"contacts"),{
+      name,email,message,
+      sentAt: new Date()
+    });
+
+    showToast("✅ تم إرسال رسالتك بنجاح!");
+    form.reset();
+  });
+
+  AOS.init({ duration: 700, once: true });
+</script>
+
+<script>
+  // 1️⃣ تحميل nav.html أولاً
+  fetch("nav.html").then(res => res.text()).then(data => {
+    document.getElementById("navbar").innerHTML = data;
+
+    // تحميل الفوتر
+    fetch("footer.html").then(res=>res.text()).then(d=>document.getElementById("footer").innerHTML=d);
+
+    // 2️⃣ بعد تركيب الناف بار نبدأ باستدعاء Firebase
+    importFirebaseAuth();
+  });
+
+  // 3️⃣ دالة استدعاء Firebase
+  async function importFirebaseAuth() {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const { getFirestore, collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+      authDomain: "techtimev3.firebaseapp.com",
+      projectId: "techtimev3",
+      storageBucket: "techtimev3.appspot.com",
+      messagingSenderId: "435597436729",
+      appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+      measurementId: "G-3984PMGWGH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // عناصر القائمة
+    const userName = document.getElementById("userName");
+    const loginOption = document.getElementById("loginOption");
+    const registerOption = document.getElementById("registerOption");
+    const ordersOption = document.getElementById("ordersOption");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const cartCount = document.getElementById("cartCount");
+
+    // 🔹 التحقق من تسجيل الدخول
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userName.textContent = user.displayName || "حسابي";
+        loginOption.classList.add("hidden");
+        registerOption.classList.add("hidden");
+        ordersOption.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+      } else {
+        userName.textContent = "حسابي";
+        loginOption.classList.remove("hidden");
+        registerOption.classList.remove("hidden");
+        ordersOption.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+      }
+    });
+
+    // 🔹 تسجيل الخروج
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "index.html");
+    });
+
+    // 🔹 تحديث عداد السلة مباشرة
+    if (cartCount) {
+      onSnapshot(collection(db, "carts"), (snapshot) => {
+        cartCount.textContent = snapshot.size;
+        cartCount.classList.toggle("hidden", snapshot.size === 0);
+      });
+    }
+  }
+</script><script>
+  // دالة فتح وإغلاق السايد بار
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    if (sidebar) {
+      sidebar.classList.toggle('translate-x-full');
+    }
+    if (overlay) {
+      overlay.classList.toggle('invisible');
+      overlay.classList.toggle('opacity-0');
+    }
+  }
+</script>
+
+</body>
+</html>

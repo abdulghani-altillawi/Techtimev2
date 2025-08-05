@@ -1,0 +1,59 @@
+<!-- ===== loader.html ===== -->
+<div id="page-loader" class="fixed inset-0 bg-[#222831] flex flex-col justify-center items-center z-[9999] transition-opacity duration-300">
+  <!-- دائرة تحميل متحركة -->
+  <div class="w-16 h-16 border-4 border-[#00ADB5] border-t-transparent rounded-full animate-spin"></div>
+  <!-- اسم الموقع -->
+  <h2 class="mt-4 text-white text-lg font-bold animate-pulse">Tech Time</h2>
+</div>
+
+<style>
+  /* دوران اللودر */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* نبض الاسم */
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .animate-pulse {
+    animation: pulse 1.5s infinite;
+  }
+</style>
+
+<script>
+  // اللودر يختفي تلقائياً بعد ثانية
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("page-loader");
+    setTimeout(() => {
+      loader.style.opacity = "0";
+      setTimeout(() => loader.style.display = "none", 300);
+    }, 1000); // 1 ثانية
+  });
+</script>
+
+
+<!-- استدعاء اللودر 
+
+<div id="loader-container"></div>
+
+<script>
+  // تحميل loader.html وإضافته للصفحة
+  fetch("loader.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("loader-container").innerHTML = data;
+
+      // إخفاء التحميل بعد تحميل الصفحة
+      window.addEventListener("load", () => {
+        const loader = document.getElementById("page-loader");
+        loader.style.opacity = "0";
+        setTimeout(()=> loader.style.display = "none", 300);
+      });
+    });
+</script> -->

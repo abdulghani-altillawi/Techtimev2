@@ -1,0 +1,57 @@
+<!-- ===== footer.html ===== -->
+<footer class="bg-[#222831] text-white mt-12">
+  <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+    
+    <!-- شعار ونص قصير -->
+    <div class="text-center md:text-right max-w-sm">
+      <h3 class="text-xl font-bold text-[#00ADB5]">Tech Time</h3>
+      <p class="text-gray-400 text-sm mt-1 leading-relaxed">
+        متجر Tech Time يوفر لك أحدث إكسسوارات الموبايل  
+        بجودة عالية وتصاميم عصرية تناسب جميع الأذواق.
+      </p>
+      <p class="text-gray-400 text-xs mt-2">
+        &copy; <span id="year"></span> جميع الحقوق محفوظة
+      </p>
+    </div>
+
+    <!-- أيقونات السوشال ميديا -->
+    <div class="flex gap-4 text-2xl">
+      <a href="#" class="hover:text-[#00ADB5] transition transform hover:scale-125">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a href="#" class="hover:text-[#00ADB5] transition transform hover:scale-125">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="#" class="hover:text-[#00ADB5] transition transform hover:scale-125">
+        <i class="fab fa-youtube"></i>
+      </a>
+      <a href="#" class="hover:text-[#00ADB5] transition transform hover:scale-125">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+
+  </div>
+</footer>
+
+<!-- خط أيقونات Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+  // تحديث السنة تلقائياً
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+
+
+
+
+<!-- استدعاء الفوتر 
+<div id="footer"></div>
+
+<script>
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("footer").innerHTML = data;
+    });
+</script> --> 

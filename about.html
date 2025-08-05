@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>من نحن - Tech Time</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background:#222831; color:#EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<div id="navbar"></div>
+
+
+<!-- ===== بانر الصفحة ===== -->
+<section class="relative h-[40vh] flex flex-col justify-center items-center text-center overflow-hidden"
+         style="background: url('https://i.im.ge/2025/08/03/JymlnW.1000084062.jpeg') center/cover no-repeat;">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative z-10 px-6">
+    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4">من نحن</h1>
+    <p class="text-gray-200 text-lg">تعرف على متجر Tech Time</p>
+  </div>
+</section>
+
+<!-- ===== نص تعريفي ===== -->
+<section class="max-w-5xl mx-auto px-6 py-16 text-center">
+  <p class="text-lg mb-8 leading-relaxed" data-aos="fade-up">
+    متجر <span class="text-[#00ADB5] font-bold">Tech Time</span> متخصص في تقديم أجود أنواع إكسسوارات الموبايل الحديثة.
+    هدفنا توفير تجربة تسوق ممتعة مع منتجات عالية الجودة وخدمة عملاء مميزة.
+  </p>
+
+  <div class="grid md:grid-cols-3 gap-6 mt-12">
+    <div class="glass p-6 rounded-xl hover:scale-105 transition" data-aos="fade-up">
+      <div class="text-4xl mb-4">⚡</div>
+      <h3 class="font-bold mb-2 text-[#00ADB5]">شحن سريع</h3>
+      <p class="text-gray-400 text-sm">نوصل طلباتك بسرعة وموثوقية</p>
+    </div>
+    <div class="glass p-6 rounded-xl hover:scale-105 transition" data-aos="fade-up" data-aos-delay="100">
+      <div class="text-4xl mb-4">⭐</div>
+      <h3 class="font-bold mb-2 text-[#00ADB5]">جودة عالية</h3>
+      <p class="text-gray-400 text-sm">منتجات أصلية مختارة بعناية</p>
+    </div>
+    <div class="glass p-6 rounded-xl hover:scale-105 transition" data-aos="fade-up" data-aos-delay="200">
+      <div class="text-4xl mb-4">💬</div>
+      <h3 class="font-bold mb-2 text-[#00ADB5]">خدمة عملاء</h3>
+      <p class="text-gray-400 text-sm">دعم متواصل للإجابة على أسئلتك</p>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init({ duration: 700, once: true });</script>
+
+<script>
+  // 1️⃣ تحميل nav.html أولاً
+  fetch("nav.html").then(res => res.text()).then(data => {
+    document.getElementById("navbar").innerHTML = data;
+
+    // تحميل الفوتر
+    fetch("footer.html").then(res=>res.text()).then(d=>document.getElementById("footer").innerHTML=d);
+
+    // 2️⃣ بعد تركيب الناف بار نبدأ باستدعاء Firebase
+    importFirebaseAuth();
+  });
+
+  // 3️⃣ دالة استدعاء Firebase
+  async function importFirebaseAuth() {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const { getFirestore, collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+      authDomain: "techtimev3.firebaseapp.com",
+      projectId: "techtimev3",
+      storageBucket: "techtimev3.appspot.com",
+      messagingSenderId: "435597436729",
+      appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+      measurementId: "G-3984PMGWGH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // عناصر القائمة
+    const userName = document.getElementById("userName");
+    const loginOption = document.getElementById("loginOption");
+    const registerOption = document.getElementById("registerOption");
+    const ordersOption = document.getElementById("ordersOption");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const cartCount = document.getElementById("cartCount");
+
+    // 🔹 التحقق من تسجيل الدخول
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        userName.textContent = user.displayName || "حسابي";
+        loginOption.classList.add("hidden");
+        registerOption.classList.add("hidden");
+        ordersOption.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+      } else {
+        userName.textContent = "حسابي";
+        loginOption.classList.remove("hidden");
+        registerOption.classList.remove("hidden");
+        ordersOption.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+      }
+    });
+
+    // 🔹 تسجيل الخروج
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "index.html");
+    });
+
+    // 🔹 تحديث عداد السلة مباشرة
+    if (cartCount) {
+      onSnapshot(collection(db, "carts"), (snapshot) => {
+        cartCount.textContent = snapshot.size;
+        cartCount.classList.toggle("hidden", snapshot.size === 0);
+      });
+    }
+  }
+</script>
+<script>
+  // دالة فتح وإغلاق السايد بار
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    if (sidebar) {
+      sidebar.classList.toggle('translate-x-full');
+    }
+    if (overlay) {
+      overlay.classList.toggle('invisible');
+      overlay.classList.toggle('opacity-0');
+    }
+  }
+</script>
+</body>
+</html>

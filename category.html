@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منتجات الفئة - Tech Time</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"/>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background:#222831; color:#EEEEEE; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .product-card img { 
+      height: 200px; 
+      object-fit: contain; 
+      border-radius:0.5rem; 
+      background-color: transparent;
+      padding: 6px;
+    }
+
+    /* ====== الناف بار ====== */
+    #sidebar {box-shadow: -4px 0 15px rgba(0,0,0,0.4);transition: transform 0.35s, opacity 0.35s;opacity: 0;}
+    #sidebar:not(.translate-x-full){opacity: 1;}
+    #overlay {transition: opacity 0.3s;}
+    #sidebar a:hover { color: #00ADB5; }
+    nav .nav-link{position:relative;padding-bottom:2px;}
+    nav .nav-link::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:#00ADB5;transition:width 0.3s;}
+    nav .nav-link:hover::after{width:100%;}
+    #userMenuBtn {transition: transform 0.2s, background 0.2s;}
+    #userMenuBtn:hover { transform: scale(1.05); background: #00939a; }
+    #userDropdown {transform-origin: top right;transform: scaleY(0);opacity: 0;transition: all 0.25s;}
+    .group:hover #userDropdown {transform: scaleY(1);opacity: 1;}
+    #userPhoto {width: 28px; height: 28px; border-radius: 50%; object-fit: cover;}
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ===== الناف بار كامل ===== -->
+<nav class="flex justify-between items-center px-6 py-4 bg-[#222831] text-white fixed w-full top-0 z-50">
+  <button class="lg:hidden text-2xl" onclick="toggleSidebar()">☰</button>
+  <div class="hidden lg:flex items-center gap-6">
+    <a href="index.html" class="nav-link hover:text-[#00ADB5] transition">الرئيسية</a>
+    <a href="products.html" class="nav-link hover:text-[#00ADB5] transition">المنتجات</a>
+    <a href="categories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات</a>
+    <a href="subcategories.html" class="nav-link hover:text-[#00ADB5] transition">الفئات الفرعية</a>
+    <a href="brands.html" class="nav-link hover:text-[#00ADB5] transition">الماركات</a>
+    <a href="about.html" class="nav-link hover:text-[#00ADB5] transition">من نحن</a>
+    <a href="contact.html" class="nav-link hover:text-[#00ADB5] transition">تواصل معنا</a>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <a href="cart.html" class="relative text-2xl hover:text-[#00ADB5] transition">
+      🛒
+      <span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 hidden">0</span>
+    </a>
+
+    <div class="relative group">
+      <button id="userMenuBtn" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00ADB5] text-white font-bold">
+        <img id="userPhoto" class="hidden" alt="User"/>
+        <span id="userName">حسابي</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+      </button>
+
+      <div id="userDropdown" class="absolute right-0 mt-2 w-44 bg-[#393E46] text-white rounded-lg shadow-lg">
+        <a href="login.html" id="loginOption" class="block px-4 py-2 hover:bg-[#00ADB5] rounded-t-lg">تسجيل الدخول</a>
+        <a href="register.html" id="registerOption" class="block px-4 py-2 hover:bg-[#00ADB5]">إنشاء حساب</a>
+        <a href="my-orders.html" id="ordersOption" class="block px-4 py-2 hover:bg-[#00ADB5] hidden">طلباتي</a>
+        <button id="logoutBtn" class="block w-full text-right px-4 py-2 hover:bg-red-500 rounded-b-lg hidden">تسجيل الخروج</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 invisible z-40 lg:hidden" onclick="toggleSidebar()"></div>
+<div id="sidebar" class="fixed top-0 right-0 w-64 h-full bg-[#222831] text-white transform translate-x-full transition-transform z-50 lg:hidden">
+  <button class="text-2xl p-4" onclick="toggleSidebar()">✖</button>
+  <div class="flex flex-col gap-4 px-6 mt-6">
+    <a href="index.html" class="hover:text-[#00ADB5]">الرئيسية</a>
+    <a href="products.html" class="hover:text-[#00ADB5]">المنتجات</a>
+    <a href="categories.html" class="hover:text-[#00ADB5]">الفئات</a>
+    <a href="subcategories.html" class="hover:text-[#00ADB5]">الفئات الفرعية</a>
+    <a href="brands.html" class="hover:text-[#00ADB5]">الماركات</a>
+    <a href="about.html" class="hover:text-[#00ADB5]">من نحن</a>
+    <a href="contact.html" class="hover:text-[#00ADB5]">تواصل معنا</a>
+  </div>
+</div>
+
+<section class="pt-28 px-6 max-w-7xl mx-auto">
+
+  <h1 id="categoryTitle" class="text-3xl font-bold text-center text-[#00ADB5] mb-10" data-aos="fade-down">
+    منتجات الفئة
+  </h1>
+
+  <!-- ===== مؤشر التحميل ===== -->
+  <div id="loading" class="text-center py-16">
+    <svg class="animate-spin h-8 w-8 text-[#00ADB5] mx-auto mb-2" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v8H4z"></path>
+    </svg>
+    <p>جاري تحميل المنتجات...</p>
+  </div>
+
+  <!-- ===== رسالة عدم وجود نتائج ===== -->
+  <div id="noResults" class="hidden text-center py-10 text-gray-400 text-lg">
+    لا توجد منتجات ضمن هذه الفئة
+  </div>
+
+  <!-- ===== شبكة المنتجات ===== -->
+  <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+</section>
+
+<!-- ===== Toast Notifications ===== -->
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<!-- ===== الفوتر ===== -->
+<div id="footer"></div>
+<script>fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);</script>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, query, where, getDocs as getDocs2, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPRUZs1HHbucnnOdqOr280TjLH86qETnA",
+    authDomain: "techtimev3.firebaseapp.com",
+    projectId: "techtimev3",
+    storageBucket: "techtimev3.appspot.com",
+    messagingSenderId: "435597436729",
+    appId: "1:435597436729:web:2bd440942a6c0da8fb6ae8",
+    measurementId: "G-3984PMGWGH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user || null;
+    updateUserMenu(user);
+    if(user) await syncLocalCartToUser();
+  });
+
+  function updateUserMenu(user){
+    const userName = document.getElementById("userName");
+    const loginOption = document.getElementById("loginOption");
+    const registerOption = document.getElementById("registerOption");
+    const ordersOption = document.getElementById("ordersOption");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if(user){
+      userName.textContent = user.displayName || "حسابي";
+      loginOption.classList.add("hidden");
+      registerOption.classList.add("hidden");
+      ordersOption.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
+    } else {
+      userName.textContent = "حسابي";
+      loginOption.classList.remove("hidden");
+      registerOption.classList.remove("hidden");
+      ordersOption.classList.add("hidden");
+      logoutBtn.classList.add("hidden");
+    }
+
+    logoutBtn.addEventListener("click", () => signOut(auth).then(() => window.location.href="index.html"));
+  }
+
+  async function syncLocalCartToUser(){
+    const localCart = JSON.parse(localStorage.getItem("localCart")||"[]");
+    if(localCart.length===0 || !currentUser) return;
+
+    for(let item of localCart){
+      const q = query(collection(db,"carts"), where("userId","==",currentUser.uid), where("name","==",item.name));
+      const snap = await getDocs2(q);
+      if(!snap.empty){
+        // تحديث الكمية
+        const docRef = doc(db,"carts",snap.docs[0].id);
+        await updateDoc(docRef,{quantity:(snap.docs[0].data().quantity||1)+item.quantity});
+      }else{
+        await addDoc(collection(db,"carts"),{
+          userId: currentUser.uid,
+          name:item.name,image:item.image,brand:item.brand,
+          category:item.category||'',subCategory:item.subCategory||'',
+          price:item.price,quantity:item.quantity,
+          addedAt:new Date()
+        });
+      }
+    }
+    localStorage.removeItem("localCart");
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryName = urlParams.get('name');
+  document.getElementById("categoryTitle").textContent = `منتجات فئة: ${categoryName}`;
+
+  const productsGrid = document.getElementById("productsGrid");
+  const loading = document.getElementById("loading");
+  const noResults = document.getElementById("noResults");
+  const toastContainer = document.getElementById("toastContainer");
+
+  function showToast(message, type='success'){
+    const toast=document.createElement('div');
+    toast.className=`glass px-4 py-3 rounded-lg shadow-md cursor-pointer transition transform hover:scale-105 ${type==='success'?'border-green-500 text-green-400':'border-red-500 text-red-400'}`;
+    toast.textContent=message;
+    toast.addEventListener('click',()=>toast.remove());
+    toastContainer.appendChild(toast);
+    setTimeout(()=>toast.remove(),3000);
+  }
+
+  async function loadCategoryProducts(){
+    const snapshot = await getDocs(collection(db,"products"));
+    let found=false; let delay=0;
+
+    snapshot.forEach(docSnap=>{
+      const p=docSnap.data();
+      if(p.category===categoryName){
+        found=true;
+        const price = parseFloat(p.price||0)||0;
+        const card=document.createElement("div");
+        card.className="glass product-card p-4 rounded-xl hover:scale-105 transition";
+        card.setAttribute("data-aos","fade-up");
+        card.setAttribute("data-aos-delay",delay.toString());
+
+        card.innerHTML=`
+          <a href="product.html?name=${encodeURIComponent(p.name||'')}">
+            <img src="${p.mainImage||p.image||''}" class="w-full mb-3 rounded">
+            <h3 class="font-bold mb-1">${p.name||''}</h3>
+          </a>
+          <p class="text-gray-300 text-sm mb-1">${p.brand||''}</p>
+          <p class="text-gray-400 text-xs mb-3">${p.category||''} / ${p.subCategory||''}</p>
+          <p class="text-[#00ADB5] font-bold mb-2">${price} ل.س</p>
+          <button class="add-to-cart bg-[#00ADB5] hover:bg-[#393E46] text-white py-2 rounded w-full text-sm font-bold">أضف إلى السلة</button>
+        `;
+
+        card.querySelector(".add-to-cart").addEventListener("click",()=>addToCart(p,price));
+        productsGrid.appendChild(card);
+        delay+=100;
+      }
+    });
+
+    loading.classList.add("hidden");
+    if(!found) noResults.classList.remove("hidden");
+  }
+
+  async function addToCart(p,price){
+    if(currentUser){
+      // بحث عن المنتج قبل الإضافة
+      const q = query(collection(db,"carts"), where("userId","==",currentUser.uid), where("name","==",p.name));
+      const snap = await getDocs2(q);
+      if(!snap.empty){
+        const docRef = doc(db,"carts",snap.docs[0].id);
+        await updateDoc(docRef,{quantity:(snap.docs[0].data().quantity||1)+1});
+      }else{
+        await addDoc(collection(db,"carts"),{
+          userId: currentUser.uid,
+          name:p.name,image:p.mainImage||p.image||'',brand:p.brand||'',
+          category:p.category||'',subCategory:p.subCategory||'',
+          price:price,quantity:1,addedAt:new Date()
+        });
+      }
+      showToast("✅ تمت إضافة المنتج إلى السلة!");
+    } else {
+      let localCart = JSON.parse(localStorage.getItem("localCart")||"[]");
+      const existing = localCart.find(item=>item.name===p.name);
+      if(existing) existing.quantity += 1;
+      else localCart.push({name:p.name,image:p.mainImage||p.image||'',brand:p.brand||'',price:price,quantity:1});
+      localStorage.setItem("localCart", JSON.stringify(localCart));
+      showToast("✅ تمت إضافة المنتج إلى السلة كزائر!");
+    }
+  }
+
+  loadCategoryProducts();
+  AOS.init({ duration: 700, once: true });
+</script>
+
+<script>
+  function toggleSidebar(){
+    const sidebar=document.getElementById('sidebar');
+    const overlay=document.getElementById('overlay');
+    sidebar.classList.toggle('translate-x-full');
+    overlay.classList.toggle('invisible');
+    overlay.classList.toggle('opacity-0');
+  }
+</script>
+</body>
+</html>
